@@ -26,7 +26,7 @@ public class DrawWithCommandBuffer : MonoBehaviour {
 		mesh.SetVertices (vertices);
 		mesh.SetTriangles (triangles, 0);
 
-		var material = new Material (Shader.Find ("Standard"));
+		var material = new Material (Shader.Find ("Unlit/TestShader"));
 
 		var buf = new CommandBuffer ();
 
