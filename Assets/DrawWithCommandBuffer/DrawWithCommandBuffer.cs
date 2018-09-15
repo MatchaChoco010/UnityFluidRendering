@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 [RequireComponent (typeof (Camera))]
 public class DrawWithCommandBuffer : MonoBehaviour {
 
-	CommandBuffer CreateCommandBuffer () {
+	Mesh CreateMesh () {
 		var mesh = new Mesh ();
 		mesh.name = "TestMesh";
 		var vertices = new List<Vector3> {
@@ -25,9 +25,10 @@ public class DrawWithCommandBuffer : MonoBehaviour {
 		};
 		mesh.SetVertices (vertices);
 		mesh.SetTriangles (triangles, 0);
+		return mesh;
+	}
 
-		var material = new Material (Shader.Find ("Unlit/TestShader"));
-
+	CommandBuffer CreateCommandBuffer (Mesh mesh, Material material) {
 		var buf = new CommandBuffer ();
 
 		buf.name = "My Command Buffer";
@@ -52,7 +53,9 @@ public class DrawWithCommandBuffer : MonoBehaviour {
 	}
 
 	void Start () {
-		var buf = CreateCommandBuffer ();
+		var mesh = CreateMesh ();
+		var material = new Material (Shader.Find ("Unlit/TestShader"));
+		var buf = CreateCommandBuffer (mesh, material);
 
 		var camera = GetComponent<Camera> ();
 		camera.AddCommandBuffer (CameraEvent.AfterSkybox, buf);

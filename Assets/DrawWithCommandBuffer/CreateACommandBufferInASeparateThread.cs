@@ -7,9 +7,7 @@ using UnityEngine.Rendering;
 
 public class CreateACommandBufferInASeparateThread : MonoBehaviour {
 
-	CommandBuffer CreateCommandBuffer () {
-		Debug.Log (Thread.CurrentThread.ManagedThreadId);
-
+	Mesh CreateMesh () {
 		var mesh = new Mesh ();
 		mesh.name = "TestMesh";
 		var vertices = new List<Vector3> {
@@ -28,8 +26,11 @@ public class CreateACommandBufferInASeparateThread : MonoBehaviour {
 		};
 		mesh.SetVertices (vertices);
 		mesh.SetTriangles (triangles, 0);
+		return mesh;
+	}
 
-		var material = new Material (Shader.Find ("Unlit/TestShader"));
+	CommandBuffer CreateCommandBuffer (Mesh mesh, Material material) {
+		Debug.Log (Thread.CurrentThread.ManagedThreadId);
 		var buf = new CommandBuffer ();
 
 		buf.name = "My Command Buffer";
@@ -55,7 +56,11 @@ public class CreateACommandBufferInASeparateThread : MonoBehaviour {
 
 	void Start () {
 		Debug.Log (Thread.CurrentThread.ManagedThreadId);
-		var task = Task.Run (() => CreateCommandBuffer ());
+
+		var mesh = CreateMesh ();
+		var material = new Material (Shader.Find ("Unlit/TestShader"));
+
+		var task = Task.Run (() => CreateCommandBuffer (mesh, material));
 		task.Wait ();
 		var buf = task.Result;
 
