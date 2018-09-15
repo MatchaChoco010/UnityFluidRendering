@@ -30,7 +30,6 @@ public class DrawMeshNow : MonoBehaviour {
 		material = new Material (Shader.Find ("Unlit/TestShader"));
 	}
 
-	// Update is called once per frame
 	void OnRenderObject () {
 		material.SetPass (0);
 		Graphics.DrawMeshNow (mesh, transform.position, transform.rotation);
