@@ -10,6 +10,8 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma multi_compile_shadowcaster
+			#pragma multi_compile_instancing
 
 			#include "UnityCG.cginc"
 
@@ -35,7 +37,7 @@
 
 			fixed4 frag (v2f i) : SV_Target
 			{
-				float2 r = i.uv *2 - 1;
+				float2 r = i.uv * 2 - 1;
 				float r2 = dot(r, r);
 				if (r2 > 1.0) discard;
 

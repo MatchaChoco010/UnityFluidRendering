@@ -14,6 +14,7 @@ public class GBufferSphereParticle : MonoBehaviour {
 	private Dictionary<Camera, CommandBuffer> dict = new Dictionary<Camera, CommandBuffer> ();
 	private ParticleSystem.Particle[] particles;
 	private Matrix4x4[] matrices;
+	private float[] radiuses;
 
 	[ColorUsage (showAlpha: false)]
 	public Color albedo;
@@ -26,7 +27,6 @@ public class GBufferSphereParticle : MonoBehaviour {
 	[ColorUsage (showAlpha: false, hdr: true)]
 	public Color emission;
 	public new ParticleSystem particleSystem;
-	public float particleSize = 1f;
 
 	private void Start () {
 		quad = new Mesh ();
@@ -67,6 +67,7 @@ public class GBufferSphereParticle : MonoBehaviour {
 		for (var i = 0; i < particleSystem.main.maxParticles; i++) {
 			matrices[i] = new Matrix4x4 ();
 		}
+		radiuses = new float[particleSystem.main.maxParticles];
 	}
 
 	private void OnWillRenderObject () {
@@ -106,17 +107,21 @@ public class GBufferSphereParticle : MonoBehaviour {
 			gBuffer3ColorPropertyID,
 			new Vector4 (emission.r, emission.g, emission.b, 0)
 		);
-		material.SetFloat (radiusID, particleSize);
 
 		var numParticleAlive = particleSystem.GetParticles (particles);
 		for (var i = 0; i < numParticleAlive; i++) {
+			var particleSize = particles[i].GetCurrentSize (particleSystem);
 			matrices[i].SetTRS (
 				particles[i].position,
 				camera.transform.rotation,
 				Vector3.one * particleSize
 			);
+			radiuses[i] = particleSize / 2;
 		}
 
-		buf.DrawMeshInstanced (quad, 0, material, 0, matrices);
+		var properties = new MaterialPropertyBlock ();
+		properties.SetFloatArray (radiusID, radiuses);
+
+		buf.DrawMeshInstanced (quad, 0, material, 0, matrices, count : numParticleAlive, properties : properties);
 	}
 }
