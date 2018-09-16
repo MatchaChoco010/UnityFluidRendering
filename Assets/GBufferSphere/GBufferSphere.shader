@@ -27,14 +27,12 @@
 			struct appdata
 			{
 				float4 vertex : POSITION;
-				float3 normal : NORMAL;
 				float2 uv : TEXCOORD0;
 			};
 
 			struct v2f
 			{
 				float4 position : SV_POSITION;
-				float3 normal : NORMAL;
 				float2 uv : TEXCOORD0;
 				float3 eyeSpacePos : TEXCOORD1;
 			};
@@ -56,32 +54,29 @@
 			void vert (in appdata v, out v2f o)
 			{
 				o.position = UnityObjectToClipPos(v.vertex);
-				o.normal = UnityObjectToWorldNormal(v.normal);
 				o.uv = v.uv;
 				o.eyeSpacePos = UnityObjectToViewPos(v.vertex);
 			}
 
 			void frag (in v2f i, out flagout o)
 			{
-				float3 clipSpaceNormal;
-				clipSpaceNormal.xy = i.uv *2 - 1;
-				float r2 = dot(clipSpaceNormal.xy, clipSpaceNormal.xy);
+				float3 eyeSpaceNormal;
+				eyeSpaceNormal.xy = i.uv * 2 - 1;
+				float r2 = dot(eyeSpaceNormal.xy, eyeSpaceNormal.xy);
 				if (r2 > 1.0) discard;
-				clipSpaceNormal.z = sqrt(1.0 - r2);
+				eyeSpaceNormal.z = sqrt(1.0 - r2);
 
-				float4 pixelPos = float4(i.eyeSpacePos + clipSpaceNormal * _Radius, 1);
+				float4 pixelPos = float4(i.eyeSpacePos + eyeSpaceNormal * _Radius, 1);
 				float4 clipSpacePos = mul(UNITY_MATRIX_P, pixelPos);
 				o.depth = clipSpacePos.z / clipSpacePos.w;
 
 				float4 worldSpaceNormal = mul(
 					transpose(UNITY_MATRIX_V),
-					float4(clipSpaceNormal.xyz, 0)
+					float4(eyeSpaceNormal.xyz, 0)
 				);
 
-				// o.gBuffer0 = float4(i.uv, 0, 1);
 				o.gBuffer0 = _GBuffer0Color;
 				o.gBuffer1 = _GBuffer1Color;
-				// o.gBuffer2 = float4(i.normal, 0) * 0.5 + float4(0.5, 0.5, 0.5, 0);
 				o.gBuffer2 = worldSpaceNormal * 0.5 + float4(0.5, 0.5, 0.5, 0);
 				o.gBuffer3 = _GBuffer3Color;
 			}
