@@ -45,6 +45,7 @@ public class GBufferTest : MonoBehaviour {
 		};
 		quad.SetVertices (vertices);
 		quad.SetTriangles (triangles, 0);
+		quad.RecalculateNormals ();
 
 		material = new Material (Shader.Find ("GBuffer/GBufferTest"));
 
