@@ -122,6 +122,6 @@ public class GBufferSphereParticle : MonoBehaviour {
 		var properties = new MaterialPropertyBlock ();
 		properties.SetFloatArray (radiusID, radiuses);
 
-		buf.DrawMeshInstanced (quad, 0, material, 0, matrices, count : numParticleAlive, properties : properties);
+		buf.DrawMeshInstanced (quad, 0, material, 0, matrices, numParticleAlive, properties);
 	}
 }
