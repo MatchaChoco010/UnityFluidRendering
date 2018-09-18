@@ -29,7 +29,7 @@ public class FluidRendering : MonoBehaviour {
 	public float smoothness;
 	[ColorUsage (showAlpha: false, hdr: true)]
 	public Color emission;
-	public ParticleSystem particleSystem;
+	public new ParticleSystem particleSystem;
 	public float particleSize = 1f;
 
 	private void Start () {
@@ -200,7 +200,7 @@ public class FluidRendering : MonoBehaviour {
 		var left = -camera.farClipPlane * Mathf.Tan (camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * camera.aspect;
 		var top = camera.farClipPlane * Mathf.Tan (camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
 		var bottom = -camera.farClipPlane * Mathf.Tan (camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-		var corner = new Vector4 (left, right, top, bottom);
+		var corner = new Vector4 (left, right, bottom, top);
 		material.SetVector (frustumCornersID, corner);
 
 		buf.DrawMesh (

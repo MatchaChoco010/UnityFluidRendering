@@ -27,7 +27,6 @@
 			struct appdata
 			{
 				float4 vertex : POSITION;
-				float3 normal : NORMAL;
 				float2 uv : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -35,7 +34,6 @@
 			struct v2f
 			{
 				float4 position : SV_POSITION;
-				float3 normal : NORMAL;
 				float2 uv : TEXCOORD0;
 				float3 eyeSpacePos : TEXCOORD1;
 			};
@@ -53,11 +51,7 @@
 				UNITY_SETUP_INSTANCE_ID (v);
 
 				o.position = UnityObjectToClipPos(v.vertex);
-				o.normal = UnityObjectToWorldNormal(v.normal);
 				o.uv = v.uv;
-				if (_ProjectionParams.x < 0) {
-					o.uv.y = 1 - o.uv.y;
-				}
 				o.eyeSpacePos = UnityObjectToViewPos(v.vertex);
 			}
 
@@ -77,16 +71,18 @@
 		}
 
 		CGINCLUDE
+		#include "UnityCG.cginc"
+
 		float bilateralBlur(float2 uv, sampler2D depthSampler, float2 blurDir) {
 			float depth = tex2D(depthSampler, uv).x;
 
-			float radius = 10;
-			// float radius = min(0.3 / (depth * _ProjectionParams.z), 10);
+			float radius = min(1 / Linear01Depth(depth), 50);
 
 			float sum = 0;
 			float wsum = 0;
+
 			for (float x = -radius; x <= radius; x += 1) {
-				float sample = tex2D(depthSampler, uv + x * blurDir).x;
+				float sample = tex2Dlod(depthSampler, float4(uv + x * blurDir, 0, 0)).x;
 
 				float r = x * 0.2;
 				float w = exp(-r * r);
@@ -261,9 +257,6 @@
 			float3 uvToEyeSpacePos(float2 uv, sampler2D depth)
 			{
 				float d = tex2D(depth, uv).x;
-				if (_ProjectionParams.x < 0) {
-					uv.y = 1 - uv.y;
-				}
 				float3 frustumRay = float3(
 					lerp(_FrustumCorner.x, _FrustumCorner.y, uv.x),
 					lerp(_FrustumCorner.z, _FrustumCorner.w, uv.y),
